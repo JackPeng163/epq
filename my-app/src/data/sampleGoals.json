@@ -1,0 +1,28 @@
+{
+  "goals": [
+    {
+      "title": "Choose the Best Car to Buy",
+      "description": "Select the most suitable car based on factors like price, fuel efficiency, safety features, and maintenance costs."
+    },
+    {
+      "title": "Select a University for Higher Education",
+      "description": "Determine the best university choice considering academic reputation, course offerings, location, and cost."
+    },
+    {
+      "title": "Pick the Ideal Job Offer",
+      "description": "Evaluate multiple job offers based on salary, career growth, work-life balance, and company culture."
+    },
+    {
+      "title": "Choose a Housing Location",
+      "description": "Find the best residential area considering factors like accessibility, safety, amenities, and property value."
+    },
+    {
+      "title": "Select Business Investment Strategy",
+      "description": "Determine the optimal investment strategy considering risk level, return potential, and market conditions."
+    },
+    {
+      "title": "Choose Technology Stack for Project",
+      "description": "Select the most appropriate technology stack based on scalability, maintenance, community support, and development speed."
+    }
+  ]
+} 
