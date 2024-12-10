@@ -1,7 +1,7 @@
-import { AppBar, Toolbar, Typography, IconButton, Box, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Box } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
@@ -37,14 +37,7 @@ const Navbar = () => {
         
         <Box sx={{ flexGrow: 1 }} />
         
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <Button
-            color="inherit"
-            onClick={() => navigate('/calculator')}
-          >
-            Calculator
-          </Button>
-          
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>          
           <IconButton
             color="inherit"
             onClick={toggleTheme}

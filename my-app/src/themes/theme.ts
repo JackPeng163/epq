@@ -37,8 +37,9 @@ const baseTheme = {
         root: {
           textTransform: 'none',
           borderRadius: 8,
-          padding: '8px 24px',
-          fontSize: '1rem',
+          padding: '8px 16px',
+          fontSize: '14px',
+          variants: []
         },
       },
     },

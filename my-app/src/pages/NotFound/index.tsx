@@ -21,11 +21,8 @@ const NotFound = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Typography variant="h1" component="h1" gutterBottom>
-          404
-        </Typography>
         <Typography variant="h4" component="h2" gutterBottom>
-          Page Not Found
+          404 Page Not Found
         </Typography>
         <Box sx={{ textAlign: 'center', mt: 4 }}>
           <Button

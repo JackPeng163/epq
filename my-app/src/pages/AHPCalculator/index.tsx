@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Container, Stepper, Step, StepLabel, Button, Typography } from '@mui/material';
+import { Box, Container, Stepper, Step, StepLabel, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from '@mui/material';
 import SetGoal from './components/SetGoal';
 import SetCriteriaAndAlternatives from './components/SetCriteriaAndAlternatives';
 import CriteriaPairwiseComparison from './components/CriteriaPairwiseComparison';
@@ -22,6 +22,7 @@ const AHPCalculator = () => {
     const saved = localStorage.getItem('hideQuickGuide');
     return saved ? false : true;
   });
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   
   const [ahpState, setAhpState] = useState<AHPState>({
     goal: { title: '', description: '' },
@@ -87,6 +88,14 @@ const AHPCalculator = () => {
 
   const handleAlternativesChange = (alternatives: Alternative[]) => {
     setAhpState((prev) => ({ ...prev, alternatives }));
+  };
+
+  const handleComplete = () => {
+    setShowCompleteDialog(true);
+  };
+
+  const handleConfirmComplete = () => {
+    setShowCompleteDialog(false);
   };
 
   const renderStepContent = () => {
@@ -186,10 +195,13 @@ const AHPCalculator = () => {
             )}
             {activeStep === steps.length - 1 ? (
               <>
-                <Button variant="outlined">
+                <Button variant="outlined" onClick={() => window.print()}>
                   Export PDF
                 </Button>
-                <Button variant="contained">
+                <Button 
+                  variant="contained"
+                  onClick={handleComplete}
+                >
                   Complete
                 </Button>
               </>
@@ -205,6 +217,34 @@ const AHPCalculator = () => {
           </Box>
         </Box>
       </Box>
+
+      <Dialog
+        open={showCompleteDialog}
+        onClose={() => setShowCompleteDialog(false)}
+      >
+        <DialogTitle>Save Your Results</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your decision analysis data will not be saved after completion. 
+            We recommend exporting a PDF report before proceeding.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setShowCompleteDialog(false)}
+            color="primary"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleConfirmComplete}
+            color="primary"
+          >
+            Complete Anyway
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

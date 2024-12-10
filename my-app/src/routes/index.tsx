@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from '../pages/MainPage/index';
 import AHPCalculator from '../pages/AHPCalculator/index';
 import NotFound from '../pages/NotFound/index';
-import Layout from '../components/Layout/index';
+import Layout from '../components/Layout';
 
 const AppRoutes = () => {
   return (
