@@ -1,7 +1,9 @@
 import { Box, Container, Typography, Button, Grid, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Assessment, Speed, Psychology, AutoGraph } from '@mui/icons-material';
+import { Assessment, Speed, Psychology, AutoGraph, Settings } from '@mui/icons-material';
+import { useState } from 'react';
+import APIKeyDialog from '../../components/Settings/APIKeyDialog';
 
 const features = [
   {
@@ -28,6 +30,7 @@ const features = [
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <Container maxWidth="lg">
@@ -130,6 +133,24 @@ const MainPage = () => {
           </Grid>
         </motion.div>
       </Box>
+
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24 }}>
+        <Button
+          variant="contained"
+          startIcon={<Settings />}
+          onClick={() => setShowSettings(true)}
+        >
+          API Settings
+        </Button>
+      </Box>
+
+      <APIKeyDialog
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        onSave={(apiKey) => {
+          // 可以添加一些成功提示
+        }}
+      />
     </Container>
   );
 };

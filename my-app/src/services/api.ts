@@ -1,9 +1,21 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+let openai: OpenAI | null = null;
+
+const getOpenAIInstance = () => {
+  const apiKey = localStorage.getItem('openai_api_key');
+  if (!apiKey) {
+    throw new Error('OpenAI API key not found');
+  }
+  
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true
+    });
+  }
+  return openai;
+};
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -12,6 +24,7 @@ interface ChatMessage {
 
 export const callOpenAI = async (messages: ChatMessage[]): Promise<string> => {
   try {
+    const openai = getOpenAIInstance();
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages,
@@ -26,4 +39,8 @@ export const callOpenAI = async (messages: ChatMessage[]): Promise<string> => {
     }
     throw error;
   }
+};
+
+export const checkAPIKey = (): boolean => {
+  return !!localStorage.getItem('openai_api_key');
 };

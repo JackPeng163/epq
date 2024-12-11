@@ -3,6 +3,8 @@ import { Button } from '@mui/material';
 import { SmartToy } from '@mui/icons-material';
 import GetHelpFromAIDialog from './Dialog';
 import { AHPState } from '../../types/ahp';
+import APIKeyDialog from '../Settings/APIKeyDialog';
+import { checkAPIKey } from '../../services/api';
 
 interface GetHelpFromAIButtonProps {
   ahpState: AHPState | undefined;
@@ -11,9 +13,14 @@ interface GetHelpFromAIButtonProps {
 const GetHelpFromAIButton = ({ ahpState }: GetHelpFromAIButtonProps) => {
 
   const [showGetHelpDialog, setShowGetHelpDialog] = useState(false);
+  const [showAPIKeyDialog, setShowAPIKeyDialog] = useState(false);
 
   const handleClick = () => {
-    setShowGetHelpDialog(true);
+    if (!checkAPIKey()) {
+      setShowAPIKeyDialog(true);
+    } else {
+      setShowGetHelpDialog(true);
+    }
   };
 
   return (
@@ -41,6 +48,14 @@ const GetHelpFromAIButton = ({ ahpState }: GetHelpFromAIButtonProps) => {
         open={showGetHelpDialog}
         onClose={() => setShowGetHelpDialog(false)}
         ahpState={ahpState}
+      />
+      <APIKeyDialog
+        open={showAPIKeyDialog}
+        onClose={() => setShowAPIKeyDialog(false)}
+        onSave={() => {
+          setShowAPIKeyDialog(false);
+          setShowGetHelpDialog(true);
+        }}
       />
     </>
   );
