@@ -12,8 +12,8 @@ import GetHelpFromAIDialog from '../../components/GetHelpFromAI/Dialog';
 const steps = [
   'Set Goal',
   'Set Criteria & Alternatives',
-  'Criteria Comparison',
-  'Alternatives Comparison',
+  'Set Criteria Comparison',
+  'Set Alternatives Comparison',
   'Review Results'
 ];
 
