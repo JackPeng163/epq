@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -14,6 +14,7 @@ import {
   Stack,
   Tooltip,
   Fade,
+  CircularProgress
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -27,6 +28,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Criterion, Alternative } from '../../../types/ahp';
 import GetHelpFromAIButton from '../../../components/GetHelpFromAI/GetHelpButton';
+import { getAISuggestions, getAlternativeSuggestions } from '../../../services/getSuggest';
 
 interface SetCriteriaAndAlternativesProps {
   initialCriteria?: Criterion[];
@@ -35,23 +37,8 @@ interface SetCriteriaAndAlternativesProps {
   onAlternativesChange: (alternatives: Alternative[]) => void;
   showQuickGuide: boolean;
   onHideQuickGuide: () => void;
+  goal?: { title: string };
 }
-
-// 这些建议稍后会通过AI API动态生成
-const suggestedCriteria = [
-  "Cost",
-  "Quality",
-  "Performance",
-  "Durability",
-];
-
-const suggestedAlternatives = [
-  "Option A",
-  "Option B",
-  "Option C",
-  "Product 1",
-  "Product 2"
-];
 
 // 添加提示信息
 const criteriaGuidelines = [
@@ -78,7 +65,8 @@ const SetCriteriaAndAlternatives = ({
   onCriteriaChange,
   onAlternativesChange,
   showQuickGuide,
-  onHideQuickGuide
+  onHideQuickGuide,
+  goal
 }: SetCriteriaAndAlternativesProps) => {
   const [criteria, setCriteria] = useState<Criterion[]>(initialCriteria);
   const [alternatives, setAlternatives] = useState<Alternative[]>(initialAlternatives);
@@ -86,6 +74,63 @@ const SetCriteriaAndAlternatives = ({
   const [newAlternative, setNewAlternative] = useState('');
   const [criterionError, setCriterionError] = useState('');
   const [alternativeError, setAlternativeError] = useState('');
+  
+  // 添加这些状态
+  const [suggestedCriteria, setSuggestedCriteria] = useState<string[]>([
+    "Cost",
+    "Quality",
+    "Performance",
+    "Durability",
+  ]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestedAlternatives, setSuggestedAlternatives] = useState<string[]>([
+    "Option A",
+    "Option B",
+    "Option C",
+    "Product 1",
+    "Product 2"
+  ]);
+  const [loadingAlternatives, setLoadingAlternatives] = useState(false);
+
+  // 添加 useEffect 来获取 AI 建议
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!goal?.title) return;
+      
+      setLoadingSuggestions(true);
+      try {
+        const response = await getAISuggestions(goal.title);
+        const criteria = response.split(',').map(c => c.trim());
+        setSuggestedCriteria(criteria);
+      } catch (error) {
+        console.error('Failed to get AI suggestions:', error);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [goal?.title]);
+
+  // 添加新的 useEffect 用于获取 alternatives 建议
+  useEffect(() => {
+    const fetchAlternatives = async () => {
+      if (!goal?.title) return;
+      
+      setLoadingAlternatives(true);
+      try {
+        const response = await getAlternativeSuggestions(goal.title);
+        const alternatives = response.split(',').map(a => a.trim());
+        setSuggestedAlternatives(alternatives);
+      } catch (error) {
+        console.error('Failed to get AI suggestions for alternatives:', error);
+      } finally {
+        setLoadingAlternatives(false);
+      }
+    };
+
+    fetchAlternatives();
+  }, [goal?.title]);
 
   const handleAddCriterion = (name: string = newCriterion) => {
     if (criteria.length >= MAX_CRITERIA) {
@@ -225,7 +270,7 @@ const SetCriteriaAndAlternatives = ({
               </Fade>
             )}
             <Box sx={{ mt: 2 }}>
-              <GetHelpFromAIButton />
+              <GetHelpFromAIButton ahpState={goal ? { goal: { title: goal.title, description: '' }, criteria, alternatives, criteriaComparisons: {}, alternativeComparisons: {} } : undefined} />
             </Box>
           </Box>
 
@@ -299,21 +344,25 @@ const SetCriteriaAndAlternatives = ({
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
                       <TipsAndUpdates color="primary" fontSize="small" />
                       <Typography variant="body2" color="text.secondary">
-                        Suggested Criteria:
+                        {loadingSuggestions ? 'Getting AI suggestions...' : 'Suggested Criteria:'}
                       </Typography>
                     </Stack>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {suggestedCriteria.map((criterion) => (
-                        <Chip
-                          key={criterion}
-                          label={criterion}
-                          onClick={() => handleAddCriterion(criterion)}
-                          sx={{
-                            bgcolor: 'background.default',
-                            '&:hover': { bgcolor: 'primary.light' }
-                          }}
-                        />
-                      ))}
+                      {loadingSuggestions ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        suggestedCriteria.map((criterion) => (
+                          <Chip
+                            key={criterion}
+                            label={criterion}
+                            onClick={() => handleAddCriterion(criterion)}
+                            sx={{
+                              bgcolor: 'background.default',
+                              '&:hover': { bgcolor: 'primary.light' }
+                            }}
+                          />
+                        ))
+                      )}
                     </Box>
                   </Box>
 
@@ -444,21 +493,25 @@ const SetCriteriaAndAlternatives = ({
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
                       <TipsAndUpdates color="primary" fontSize="small" />
                       <Typography variant="body2" color="text.secondary">
-                        Example Alternatives:
+                        {loadingAlternatives ? 'Getting AI suggestions...' : 'Suggested Alternatives:'}
                       </Typography>
                     </Stack>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {suggestedAlternatives.map((alternative) => (
-                        <Chip
-                          key={alternative}
-                          label={alternative}
-                          onClick={() => handleAddAlternative(alternative)}
-                          sx={{
-                            bgcolor: 'background.default',
-                            '&:hover': { bgcolor: 'primary.light' }
-                          }}
-                        />
-                      ))}
+                      {loadingAlternatives ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        suggestedAlternatives.map((alternative) => (
+                          <Chip
+                            key={alternative}
+                            label={alternative}
+                            onClick={() => handleAddAlternative(alternative)}
+                            sx={{
+                              bgcolor: 'background.default',
+                              '&:hover': { bgcolor: 'primary.light' }
+                            }}
+                          />
+                        ))
+                      )}
                     </Box>
                   </Box>
 

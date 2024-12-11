@@ -82,9 +82,11 @@ const AlternativesPairwiseComparison = ({
           This helps determine the best option based on your specific needs.
         </Typography>
         <Box sx={{ mt: 2 }}>
-          <GetHelpFromAIButton />
+          <GetHelpFromAIButton ahpState={{ goal: { title: '', description: '' }, criteria, alternatives, criteriaComparisons: {}, alternativeComparisons: {} }} />
         </Box>
       </Box>
+
+      
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
@@ -166,7 +168,7 @@ const AlternativesPairwiseComparison = ({
                     <Box sx={{ p: 2 }}>
                       <ComparisonDescription value={selectedValue} />
                     </Box>
-                  </motion.div>
+                  </motion.div> 
                 )
               ))}
             </AnimatePresence>

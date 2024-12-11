@@ -7,6 +7,7 @@ import AlternativesPairwiseComparison from './components/AlternativesPairwiseCom
 import ReviewResults from './components/ReviewResults';
 import { AHPState, Goal, Criterion, Alternative } from '../../types/ahp';
 import { calculateConsistencyRatio } from '../../utils/ahp';
+import GetHelpFromAIDialog from '../../components/GetHelpFromAI/Dialog';
 
 const steps = [
   'Set Goal',
@@ -23,6 +24,7 @@ const AHPCalculator = () => {
     return saved ? false : true;
   });
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showGetHelpDialog, setShowGetHelpDialog] = useState(false);
   
   const [ahpState, setAhpState] = useState<AHPState>({
     goal: { title: '', description: '' },
@@ -116,6 +118,7 @@ const AHPCalculator = () => {
             onAlternativesChange={handleAlternativesChange}
             showQuickGuide={showQuickGuide}
             onHideQuickGuide={handleHideQuickGuide}
+            goal={ahpState.goal}
           />
         );
       case 2:
@@ -245,6 +248,12 @@ const AHPCalculator = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <GetHelpFromAIDialog
+        open={showGetHelpDialog}
+        onClose={() => setShowGetHelpDialog(false)}
+        ahpState={ahpState}
+      />
     </Container>
   );
 };

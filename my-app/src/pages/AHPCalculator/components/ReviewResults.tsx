@@ -4,6 +4,9 @@ import { EmojiEvents, BarChart, SmartToy, TipsAndUpdates } from '@mui/icons-mate
 import { Alternative, Criterion, ComparisonMatrix } from '../../../types/ahp';
 import {  calculateEigenVector, calculateOverallWeights } from '../../../utils/ahp';
 import { useState } from 'react';
+import { ANALYSIS_REPORT_PROMPT, SYSTEM_PROMPT } from '../../../services/prompt';
+import { callOpenAI } from '../../../services/api';
+
 
 interface ReviewResultsProps {
     goal: { title: string; description: string };
@@ -13,6 +16,12 @@ interface ReviewResultsProps {
     alternativeComparisons: {
         [criterionId: string]: ComparisonMatrix;
     };
+}
+
+interface AIReport {
+    summary: string;
+    keyFindings: string[];
+    recommendations: string[];
 }
 
 const ReviewResults = ({
@@ -42,6 +51,7 @@ const ReviewResults = ({
     const [currentView, setCurrentView] = useState('criteria');
     const [showAIReport, setShowAIReport] = useState(false);
     const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+    const [aiReport, setAiReport] = useState<AIReport | null>(null);
 
     const handleViewChange = (_: React.SyntheticEvent, newValue: string) => {
         setCurrentView(newValue);
@@ -49,24 +59,40 @@ const ReviewResults = ({
 
     const handleGenerateReport = async () => {
         setIsGeneratingReport(true);
-        // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setShowAIReport(true);
-        setIsGeneratingReport(false);
-    };
+        try {
+            // 准备数据
+            const criteriaWeightsText = criteria
+                .map((c, i) => `${c.name}: ${formatPercent(criteriaWeights[i])}`)
+                .join('\n');
 
-    const aiReportTemplate = {
-        summary: "Based on the AHP analysis, this report provides insights into your decision-making process for choosing the best option.",
-        keyFindings: [
-            "The top-ranked alternative shows a clear advantage with a significant lead in the overall score",
-            "The criteria weights indicate that [Criterion] was considered the most important factor",
-            "The consistency ratios are within acceptable ranges, indicating reliable comparisons"
-        ],
-        recommendations: [
-            "Consider implementing the top-ranked alternative as it aligns well with your prioritized criteria",
-            "Pay special attention to the performance in [Criterion] as it carries the highest weight",
-            "The second-ranked alternative could serve as a viable backup option"
-        ],
+            const rankingsText = Object.entries(overallWeights)
+                .sort(([, a], [, b]) => b - a)
+                .map(([id, weight], index) => {
+                    const alternative = alternatives.find(a => a.id === id);
+                    return `${index + 1}. ${alternative?.name}: ${formatPercent(weight)}`;
+                })
+                .join('\n');
+
+            // 构建提示词
+            const prompt = ANALYSIS_REPORT_PROMPT
+                .replace('{goal}', goal.title)
+                .replace('{criteriaWeights}', criteriaWeightsText)
+                .replace('{rankings}', rankingsText);
+
+            const response = await callOpenAI([
+                { role: 'system' as const, content: SYSTEM_PROMPT },
+                { role: 'user' as const, content: prompt }
+            ]);
+
+            // 解析 JSON 响应
+            const reportData = JSON.parse(response) as AIReport;
+            setAiReport(reportData);
+            setShowAIReport(true);
+        } catch (error) {
+            console.error('Failed to generate AI report:', error);
+        } finally {
+            setIsGeneratingReport(false);
+        }
     };
 
     const renderDistributionChart = () => {
@@ -226,7 +252,7 @@ const ReviewResults = ({
                     </Box>
                 )}
 
-                {showAIReport && (
+                {showAIReport && aiReport && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -245,7 +271,7 @@ const ReviewResults = ({
                                         Summary
                                     </Typography>
                                     <Typography variant="body2">
-                                        {aiReportTemplate.summary}
+                                        {aiReport.summary}
                                     </Typography>
                                 </Box>
 
@@ -254,7 +280,7 @@ const ReviewResults = ({
                                         Key Findings
                                     </Typography>
                                     <Stack spacing={1}>
-                                        {aiReportTemplate.keyFindings.map((finding, index) => (
+                                        {aiReport.keyFindings.map((finding, index) => (
                                             <Typography key={index} variant="body2">
                                                 • {finding}
                                             </Typography>
@@ -267,7 +293,7 @@ const ReviewResults = ({
                                         Recommendations
                                     </Typography>
                                     <Stack spacing={1}>
-                                        {aiReportTemplate.recommendations.map((rec, index) => (
+                                        {aiReport.recommendations.map((rec, index) => (
                                             <Typography key={index} variant="body2">
                                                 • {rec}
                                             </Typography>

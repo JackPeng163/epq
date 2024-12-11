@@ -1,45 +1,48 @@
 import { useState } from 'react';
-import { Button, CircularProgress } from '@mui/material';
+import { Button } from '@mui/material';
 import { SmartToy } from '@mui/icons-material';
+import GetHelpFromAIDialog from './Dialog';
+import { AHPState } from '../../types/ahp';
 
 interface GetHelpFromAIButtonProps {
-  onGetHelp?: () => Promise<void>;
+  ahpState: AHPState | undefined;
 }
 
-const GetHelpFromAIButton = ({ onGetHelp }: GetHelpFromAIButtonProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+const GetHelpFromAIButton = ({ ahpState }: GetHelpFromAIButtonProps) => {
 
-  const handleClick = async () => {
-    if (!onGetHelp) return;
-    setIsLoading(true);
-    try {
-      await onGetHelp();
-    } finally {
-      setIsLoading(false);
-    }
+  const [showGetHelpDialog, setShowGetHelpDialog] = useState(false);
+
+  const handleClick = () => {
+    setShowGetHelpDialog(true);
   };
 
   return (
-    <Button
-      variant="outlined"
-      color="primary"
-      startIcon={isLoading ? <CircularProgress size={20} /> : <SmartToy />}
-      onClick={handleClick}
-      disabled={isLoading}
-      sx={{ 
-        borderRadius: 4,
-        px: 3,
-        py: 1,
-        borderWidth: 2,
-        '&:hover': {
+    <>
+      <Button
+        variant="outlined"
+        color="primary"
+        startIcon={<SmartToy />}
+        onClick={handleClick}
+        sx={{
+          borderRadius: 4,
+          px: 3,
+          py: 1,
           borderWidth: 2,
-          bgcolor: 'primary.light',
-          borderColor: 'primary.main'
-        }
-      }}
-    >
-      {isLoading ? 'Getting AI Help...' : 'Get help from AI'}
-    </Button>
+          '&:hover': {
+            borderWidth: 2,
+            bgcolor: 'primary.light',
+            borderColor: 'primary.main'
+          }
+        }}
+      >
+        Get help from AI
+      </Button>
+      <GetHelpFromAIDialog
+        open={showGetHelpDialog}
+        onClose={() => setShowGetHelpDialog(false)}
+        ahpState={ahpState}
+      />
+    </>
   );
 };
 

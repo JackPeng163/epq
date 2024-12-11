@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Grid, Typography, Paper, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { ViewList, ViewModule, Info as InfoIcon } from '@mui/icons-material';
+import { ViewList, ViewModule } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import TableView from '../../../components/ComparisonMatrix/TableView';
 import ListView from '../../../components/ComparisonMatrix/ListView';
@@ -16,13 +16,6 @@ interface CriteriaPairwiseComparisonProps {
     initialComparisons?: ComparisonMatrix;
     onChange: (comparisons: ComparisonMatrix) => void;
 }
-
-const comparisonGuide = [
-    "Focus on one criterion pair at a time",
-    "Use the 1-9 scale for consistent judgment",
-    "Prioritize based on decision objectives",
-    "Check consistency to validate comparisons"
-];
 
 const CriteriaPairwiseComparison = ({
     criteria,
@@ -80,42 +73,9 @@ const CriteriaPairwiseComparison = ({
                         </Typography>
 
                         <Box sx={{ mt: 2 }}>
-                            <GetHelpFromAIButton />
+                            <GetHelpFromAIButton ahpState={{ goal: { title: '', description: '' }, criteria, alternatives: [], criteriaComparisons: {}, alternativeComparisons: {} }} />
                         </Box>
                     </Box>
-
-                    {/* 指南部分 */}
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 3,
-                            bgcolor: 'primary.light',
-                            color: 'primary.main'
-                        }}
-                    >
-                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-                            <InfoIcon />
-                            <Typography variant="h6">How to Compare</Typography>
-                        </Stack>
-                        <Grid container spacing={2}>
-                            {comparisonGuide.map((guide, index) => (
-                                <Grid item xs={12} sm={6} md={3} key={index}>
-                                    <Box sx={{
-                                        p: 2,
-                                        bgcolor: 'background.paper',
-                                        borderRadius: 2,
-                                        height: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}>
-                                        <Typography variant="body2">
-                                            {index + 1}. {guide}
-                                        </Typography>
-                                    </Box>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Paper>
 
                     <Grid container spacing={3}>
                         {/* 左侧比较部分 */}

@@ -19,7 +19,7 @@ const Navbar = () => {
           onClick={() => navigate('/')}
         >
           <img 
-            src="/Logo.svg" 
+            src="./src/assets/Logo.svg" 
             alt="Decision Copilot Logo" 
             style={{ 
               height: '32px',
