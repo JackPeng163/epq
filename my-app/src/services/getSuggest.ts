@@ -1,7 +1,7 @@
 import { callOpenAI } from "./api";
 import { SYSTEM_PROMPT, CRITERIA_SUGGESTION_PROMPT, ALTERNATIVES_SUGGESTION_PROMPT } from "./prompt";
 
-export const getAISuggestions = async (goal: string): Promise<string> => {
+export const getAISuggestions = async (goal: string, apiKey: string): Promise<string> => {
   const messages = [
     { 
       role: 'system' as const, 
@@ -13,8 +13,7 @@ export const getAISuggestions = async (goal: string): Promise<string> => {
     }
   ];
   
-  const response = await callOpenAI(messages);
-  // 处理返回的字符串，移除可能的空行并分割成数组
+  const response = await callOpenAI(messages, apiKey);
   return response
     .split('\n')
     .map(line => line.trim())
@@ -23,7 +22,7 @@ export const getAISuggestions = async (goal: string): Promise<string> => {
     .join(',');
 };
 
-export const getAlternativeSuggestions = async (goal: string): Promise<string> => {
+export const getAlternativeSuggestions = async (goal: string, apiKey: string): Promise<string> => {
   const messages = [
     { 
       role: 'system' as const, 
@@ -35,7 +34,7 @@ export const getAlternativeSuggestions = async (goal: string): Promise<string> =
     }
   ];
   
-  const response = await callOpenAI(messages);
+  const response = await callOpenAI(messages, apiKey);
   return response
     .split('\n')
     .map(line => line.trim())

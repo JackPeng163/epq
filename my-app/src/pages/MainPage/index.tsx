@@ -147,7 +147,7 @@ const MainPage = () => {
       <APIKeyDialog
         open={showSettings}
         onClose={() => setShowSettings(false)}
-        onSave={(apiKey) => {
+        onSave={() => {
           // 可以添加一些成功提示
         }}
       />

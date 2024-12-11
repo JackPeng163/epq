@@ -9,20 +9,22 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
+import { useAPIKey } from '../../contexts/APIKeyContext';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (apiKey: string) => void;
+  onSave?: () => void;
 }
 
 const APIKeyDialog = ({ open, onClose, onSave }: Props) => {
-  const [apiKey, setApiKey] = useState('');
+  const [inputKey, setInputKey] = useState('');
+  const { setApiKey } = useAPIKey();
 
   const handleSave = () => {
-    if (apiKey.trim()) {
-      localStorage.setItem('openai_api_key', apiKey.trim());
-      onSave(apiKey.trim());
+    if (inputKey.trim()) {
+      setApiKey(inputKey.trim());
+      onSave?.();
       onClose();
     }
   };
@@ -33,13 +35,13 @@ const APIKeyDialog = ({ open, onClose, onSave }: Props) => {
       <DialogContent>
         <Alert severity="info" sx={{ mb: 2 }}>
           To use AI features, you need to provide your OpenAI API key. 
-          The key will be stored locally in your browser.
+          The key will be stored in memory only.
         </Alert>
         <TextField
           fullWidth
           label="OpenAI API Key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
+          value={inputKey}
+          onChange={(e) => setInputKey(e.target.value)}
           placeholder="sk-..."
           margin="normal"
           type="password"
@@ -60,7 +62,7 @@ const APIKeyDialog = ({ open, onClose, onSave }: Props) => {
         <Button 
           onClick={handleSave} 
           variant="contained" 
-          disabled={!apiKey.trim()}
+          disabled={!inputKey.trim()}
         >
           Save
         </Button>

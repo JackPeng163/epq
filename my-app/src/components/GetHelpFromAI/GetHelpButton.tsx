@@ -4,7 +4,7 @@ import { SmartToy } from '@mui/icons-material';
 import GetHelpFromAIDialog from './Dialog';
 import { AHPState } from '../../types/ahp';
 import APIKeyDialog from '../Settings/APIKeyDialog';
-import { checkAPIKey } from '../../services/api';
+import { useAPIKey } from '../../contexts/APIKeyContext';
 
 interface GetHelpFromAIButtonProps {
   ahpState: AHPState | undefined;
@@ -14,9 +14,10 @@ const GetHelpFromAIButton = ({ ahpState }: GetHelpFromAIButtonProps) => {
 
   const [showGetHelpDialog, setShowGetHelpDialog] = useState(false);
   const [showAPIKeyDialog, setShowAPIKeyDialog] = useState(false);
+  const { hasKey } = useAPIKey();
 
   const handleClick = () => {
-    if (!checkAPIKey()) {
+    if (!hasKey) {
       setShowAPIKeyDialog(true);
     } else {
       setShowGetHelpDialog(true);

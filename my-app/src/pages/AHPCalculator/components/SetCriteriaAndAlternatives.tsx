@@ -29,6 +29,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Criterion, Alternative } from '../../../types/ahp';
 import GetHelpFromAIButton from '../../../components/GetHelpFromAI/GetHelpButton';
 import { getAISuggestions, getAlternativeSuggestions } from '../../../services/getSuggest';
+import { useAPIKey } from '../../../contexts/APIKeyContext';
 
 interface SetCriteriaAndAlternativesProps {
   initialCriteria?: Criterion[];
@@ -76,30 +77,20 @@ const SetCriteriaAndAlternatives = ({
   const [alternativeError, setAlternativeError] = useState('');
   
   // 添加这些状态
-  const [suggestedCriteria, setSuggestedCriteria] = useState<string[]>([
-    "Cost",
-    "Quality",
-    "Performance",
-    "Durability",
-  ]);
+  const [suggestedCriteria, setSuggestedCriteria] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [suggestedAlternatives, setSuggestedAlternatives] = useState<string[]>([
-    "Option A",
-    "Option B",
-    "Option C",
-    "Product 1",
-    "Product 2"
-  ]);
+  const [suggestedAlternatives, setSuggestedAlternatives] = useState<string[]>([]);
   const [loadingAlternatives, setLoadingAlternatives] = useState(false);
+  const { apiKey, hasKey } = useAPIKey();
 
   // 添加 useEffect 来获取 AI 建议
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!goal?.title) return;
+      if (!goal?.title || !hasKey) return;
       
       setLoadingSuggestions(true);
       try {
-        const response = await getAISuggestions(goal.title);
+        const response = await getAISuggestions(goal.title, apiKey);
         const criteria = response.split(',').map(c => c.trim());
         setSuggestedCriteria(criteria);
       } catch (error) {
@@ -110,16 +101,16 @@ const SetCriteriaAndAlternatives = ({
     };
 
     fetchSuggestions();
-  }, [goal?.title]);
+  }, [goal?.title, apiKey, hasKey]);
 
   // 添加新的 useEffect 用于获取 alternatives 建议
   useEffect(() => {
     const fetchAlternatives = async () => {
-      if (!goal?.title) return;
+      if (!goal?.title || !hasKey) return;
       
       setLoadingAlternatives(true);
       try {
-        const response = await getAlternativeSuggestions(goal.title);
+        const response = await getAlternativeSuggestions(goal.title, apiKey);
         const alternatives = response.split(',').map(a => a.trim());
         setSuggestedAlternatives(alternatives);
       } catch (error) {
@@ -130,7 +121,7 @@ const SetCriteriaAndAlternatives = ({
     };
 
     fetchAlternatives();
-  }, [goal?.title]);
+  }, [goal?.title, apiKey, hasKey]);
 
   const handleAddCriterion = (name: string = newCriterion) => {
     if (criteria.length >= MAX_CRITERIA) {

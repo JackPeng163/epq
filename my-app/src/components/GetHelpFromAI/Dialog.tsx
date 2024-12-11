@@ -17,6 +17,7 @@ import { callOpenAI } from '../../services/api';
 import { SYSTEM_PROMPT, DECISION_DATA_PROMPT } from '../../services/prompt';
 import { useChatContext } from '../../contexts/ChatContext';
 import { AHPState } from '../../types/ahp';
+import { useAPIKey } from '../../contexts/APIKeyContext';
 
 interface Props {
     open: boolean;
@@ -28,6 +29,7 @@ const GetHelpDialog = ({ open, onClose, ahpState }: Props) => {
     const { messages, addMessage } = useChatContext();
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const { apiKey, hasKey } = useAPIKey();
 
     const handleSendDecisionData = async () => {
         if (!ahpState) return;
@@ -48,7 +50,7 @@ const GetHelpDialog = ({ open, onClose, ahpState }: Props) => {
                 userMessage
             ];
 
-            const response = await callOpenAI(allMessages);
+            const response = await callOpenAI(allMessages, apiKey);
             const assistantMessage = {
                 role: 'assistant' as const,
                 content: response,
@@ -76,7 +78,7 @@ const GetHelpDialog = ({ open, onClose, ahpState }: Props) => {
                 userMessage
             ];
 
-            const response = await callOpenAI(allMessages);
+            const response = await callOpenAI(allMessages, apiKey);
             const assistantMessage = {
                 role: 'assistant' as const,
                 content: response,

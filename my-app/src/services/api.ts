@@ -2,13 +2,12 @@ import OpenAI from 'openai';
 
 let openai: OpenAI | null = null;
 
-const getOpenAIInstance = () => {
-  const apiKey = localStorage.getItem('openai_api_key');
+const getOpenAIInstance = (apiKey: string) => {
   if (!apiKey) {
     throw new Error('OpenAI API key not found');
   }
   
-  if (!openai) {
+  if (!openai || openai.apiKey !== apiKey) {
     openai = new OpenAI({
       apiKey,
       dangerouslyAllowBrowser: true
@@ -22,9 +21,9 @@ interface ChatMessage {
   content: string;
 }
 
-export const callOpenAI = async (messages: ChatMessage[]): Promise<string> => {
+export const callOpenAI = async (messages: ChatMessage[], apiKey: string): Promise<string> => {
   try {
-    const openai = getOpenAIInstance();
+    const openai = getOpenAIInstance(apiKey);
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages,
@@ -39,8 +38,4 @@ export const callOpenAI = async (messages: ChatMessage[]): Promise<string> => {
     }
     throw error;
   }
-};
-
-export const checkAPIKey = (): boolean => {
-  return !!localStorage.getItem('openai_api_key');
 };

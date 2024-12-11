@@ -6,6 +6,7 @@ import {  calculateEigenVector, calculateOverallWeights } from '../../../utils/a
 import { useState } from 'react';
 import { ANALYSIS_REPORT_PROMPT, SYSTEM_PROMPT } from '../../../services/prompt';
 import { callOpenAI } from '../../../services/api';
+import { useAPIKey } from '../../../contexts/APIKeyContext';
 
 
 interface ReviewResultsProps {
@@ -52,12 +53,15 @@ const ReviewResults = ({
     const [showAIReport, setShowAIReport] = useState(false);
     const [isGeneratingReport, setIsGeneratingReport] = useState(false);
     const [aiReport, setAiReport] = useState<AIReport | null>(null);
+    const { apiKey, hasKey } = useAPIKey();
 
     const handleViewChange = (_: React.SyntheticEvent, newValue: string) => {
         setCurrentView(newValue);
     };
 
     const handleGenerateReport = async () => {
+        if (!hasKey) return;
+        
         setIsGeneratingReport(true);
         try {
             // 准备数据
@@ -73,7 +77,6 @@ const ReviewResults = ({
                 })
                 .join('\n');
 
-            // 构建提示词
             const prompt = ANALYSIS_REPORT_PROMPT
                 .replace('{goal}', goal.title)
                 .replace('{criteriaWeights}', criteriaWeightsText)
@@ -82,9 +85,8 @@ const ReviewResults = ({
             const response = await callOpenAI([
                 { role: 'system' as const, content: SYSTEM_PROMPT },
                 { role: 'user' as const, content: prompt }
-            ]);
+            ], apiKey);
 
-            // 解析 JSON 响应
             const reportData = JSON.parse(response) as AIReport;
             setAiReport(reportData);
             setShowAIReport(true);
