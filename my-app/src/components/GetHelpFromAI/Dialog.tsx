@@ -29,7 +29,7 @@ const GetHelpDialog = ({ open, onClose, ahpState }: Props) => {
     const { messages, addMessage } = useChatContext();
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const { apiKey, hasKey } = useAPIKey();
+    const { apiKey } = useAPIKey();
 
     const handleSendDecisionData = async () => {
         if (!ahpState) return;
